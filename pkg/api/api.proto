@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package flux;
+
+option go_package = ".;api";
+
+message StrField {
+    message Range {
+        string start = 1;
+        string step = 2;
+        string end = 3;
+    }
+    message Random {
+        string min = 1;
+        string max = 2;
+        uint64 count = 3;
+    }
+    string value = 1;
+    repeated string values = 2;
+    repeated Range ranges = 3;
+    repeated Random randoms = 4;
+}
+
+message NumField {
+    message Range {
+        uint64 start = 1;
+        uint64 step = 2;
+        uint64 end = 3;
+    }
+    message Random {
+        uint64 min = 1;
+        uint64 max = 2;
+        uint64 count = 3;
+    }
+    uint64 value = 1;
+    repeated uint64 values = 2;
+    repeated Range ranges = 3;
+    repeated Random randoms = 4;
+}
+
+message Checksum {
+    enum Type {
+        GOOD = 0;
+        BAD = 2;
+        CUSTOM = 3;
+    }
+    Type type = 1;
+    uint64 value = 2;
+}
+
+message Ethernet {
+    enum Type {
+        AUTO = 0;
+        IPV4 = 0x0800;
+        IPV6 = 0x86DD;
+    }
+    StrField dst = 1;
+    StrField src = 2;
+    Type type = 3;
+    Checksum fcs = 4;
+}
+
+message IPv4 {
+    enum Protocol {
+        AUTO = 0;
+        TCP = 0x06;
+        UDP = 0x11;
+    }
+    StrField dst = 1;
+    StrField src = 2;
+    Protocol proto = 3;
+}
+
+message UDP {
+    NumField src_port = 1;
+    NumField dst_port = 2;
+    NumField len = 3;
+    Checksum checksum = 4;
+}
+
+message TCP {
+    NumField src_port = 1;
+    NumField dst_port = 2;
+    Checksum checksum = 4;
+}
+
+message Header {
+    Ethernet ethernet = 1;
+    IPv4 ipv4 = 2;
+    TCP tcp = 3;
+    UDP udp = 4;
+}
+
+message Port {
+    string name = 1;
+}
+
+message Endpoint {
+    string tx = 1;
+    string rx = 2;
+}
+
+message Flow {
+    string name = 1;
+    repeated Endpoint endpoints = 2;
+    repeated Header headers = 3;
+    enum State {
+        STARTED = 0;
+        STOPPED = 1;
+        PAUSED = 2;
+    }
+}
+
+message SetConfigRequest {
+    repeated Port ports = 1;
+    repeated Flow flows = 2;
+}
+
+message SetConfigResponse {
+    repeated string warnings = 1;
+    repeated string errors = 2;
+}
+
+message FlowsState {
+    repeated string names = 1;
+    Flow.State state = 2;
+}
+
+message SetStateRequest {
+    FlowsState flow = 1;
+}
+
+message SetStateResponse {
+    repeated string warnings = 1;
+    repeated string errors = 2;
+}
+
+message PortStatQuery {
+    enum Key {
+        NAME = 0;
+        FRAMES_TX = 1;
+        FRAMES_RX = 2;
+        BITS_TX = 3;
+        BITS_RX = 4;
+    }
+    repeated string names = 1;
+    repeated Key keys = 2;
+}
+
+message FlowStatQuery {
+    enum Key {
+        NAME = 0;
+        FRAMES_TX = 1;
+        FRAMES_RX = 2;
+        BITS_TX = 3;
+        BITS_RX = 4;
+        STATE = 5;
+    }
+    repeated string names = 1;
+    repeated Key keys = 2;
+}
+
+message PortStat {
+    string name = 1;
+    uint64 frames_tx = 2;
+    uint64 frames_rx = 3;
+    uint64 bits_tx = 4;
+    uint64 bits_rx = 5;
+}
+
+message FlowStat {
+    string name = 1;
+    uint64 frames_tx = 2;
+    uint64 frames_rx = 3;
+    uint64 bits_tx = 4;
+    uint64 bits_rx = 5;
+    Flow.State state = 6;
+}
+
+message GetStatsRequest {
+    PortStatQuery port = 1;
+    FlowStatQuery flow = 2;
+}
+
+message GetStatsResponse {
+    repeated string warnings = 1;
+    repeated string errors = 2;
+    repeated PortStat port_stats = 3;
+    repeated FlowStat flow_stats = 4;    
+}
+
+service FluxService {
+    rpc SetConfig(SetConfigRequest) returns (SetConfigResponse);
+    rpc SetState(SetStateRequest) returns (SetStateResponse);
+    rpc GetStats(GetStatsRequest) returns (GetStatsResponse);
+}
