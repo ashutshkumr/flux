@@ -63,11 +63,7 @@ func NewNetworkDevice(name string) (_ NetworkDevice, err error) {
 }
 
 func (d *unixNwDevice) SendBytes(bytes []byte) error {
-	err := unix.Sendto(d.sock, bytes, 0, &unix.SockaddrLinklayer{
-		Protocol: unix.ETH_P_ALL,
-		Ifindex:  d.netIfc.Index,
-		Halen:    6,
-	})
+	_, err := unix.Write(d.sock, bytes)
 	if err != nil {
 		return fmt.Errorf("could not send bytes: %v", err)
 	}
