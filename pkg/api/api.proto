@@ -84,11 +84,16 @@ message TCP {
     Checksum checksum = 4;
 }
 
+message Raw {
+    bytes bytes = 1;
+}
+
 message Header {
-    Ethernet ethernet = 1;
-    IPv4 ipv4 = 2;
-    TCP tcp = 3;
-    UDP udp = 4;
+    Raw raw = 1;
+    Ethernet ethernet = 2;
+    IPv4 ipv4 = 3;
+    TCP tcp = 4;
+    UDP udp = 5;
 }
 
 message Port {
