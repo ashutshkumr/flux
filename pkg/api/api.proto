@@ -6,16 +6,16 @@ option go_package = ".;api";
 
 message StrField {
     message Range {
-        string start = 1;
-        string step = 2;
-        string end = 3;
+        optional string start = 1;
+        optional string step = 2;
+        optional string end = 3;
     }
     message Random {
-        string min = 1;
-        string max = 2;
-        uint64 count = 3;
+        optional string min = 1;
+        optional string max = 2;
+        optional uint64 count = 3;
     }
-    string value = 1;
+    optional string value = 1;
     repeated string values = 2;
     repeated Range ranges = 3;
     repeated Random randoms = 4;
@@ -23,16 +23,16 @@ message StrField {
 
 message NumField {
     message Range {
-        uint64 start = 1;
-        uint64 step = 2;
-        uint64 end = 3;
+        optional uint64 start = 1;
+        optional uint64 step = 2;
+        optional uint64 end = 3;
     }
     message Random {
-        uint64 min = 1;
-        uint64 max = 2;
-        uint64 count = 3;
+        optional uint64 min = 1;
+        optional uint64 max = 2;
+        optional uint64 count = 3;
     }
-    uint64 value = 1;
+    optional uint64 value = 1;
     repeated uint64 values = 2;
     repeated Range ranges = 3;
     repeated Random randoms = 4;
@@ -45,7 +45,7 @@ message Checksum {
         CUSTOM = 3;
     }
     Type type = 1;
-    uint64 value = 2;
+    optional uint64 value = 2;
 }
 
 message Ethernet {
@@ -98,17 +98,14 @@ message Header {
 
 message Port {
     string name = 1;
-}
-
-message Endpoint {
-    string tx = 1;
-    string rx = 2;
+    string ifc = 2;
 }
 
 message Flow {
     string name = 1;
-    repeated Endpoint endpoints = 2;
-    repeated Header headers = 3;
+    string tx_name = 2;
+    string rx_name = 3;
+    repeated Header headers = 4;
     enum State {
         STARTED = 0;
         STOPPED = 1;
